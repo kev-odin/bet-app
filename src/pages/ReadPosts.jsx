@@ -6,8 +6,21 @@ const ReadPosts = (props) => {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    setPosts(props.data);
-  }, [props]);
+    const fetchPosts = async () => {
+      const { data, error } = await supabase
+        .from("Posts")
+        .select()
+        .order("created_at", { ascending: true });
+
+      if (error) {
+        console.error("Error fetching posts:", error.message);
+      } else {
+        setPosts(data);
+      }
+    };
+
+    fetchPosts();
+  }, []);
 
   return (
     <div className="ReadPosts">

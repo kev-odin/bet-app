@@ -37,7 +37,6 @@ const App = () => {
     },
   ];
 
-  // Sets up routes
   let element = useRoutes([
     {
       path: "/",

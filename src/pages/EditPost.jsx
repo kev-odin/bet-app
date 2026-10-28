@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router";
 import "./EditPost.css";
+import { supabase } from "../client";
 
 const EditPost = ({ data }) => {
   const { id } = useParams();
@@ -20,6 +21,47 @@ const EditPost = ({ data }) => {
       };
     });
   };
+
+  const updatePost = async (event) => {
+    event.preventDefault();
+
+    await supabase
+      .from("Posts")
+      .update({
+        title: post.title,
+        author: post.author,
+        description: post.description,
+      })
+      .eq("id", id);
+
+    window.location = "/";
+  };
+
+  const deletePost = async (event) => {
+    event.preventDefault();
+
+    await supabase.from("Posts").delete().eq("id", id);
+
+    window.location = "/";
+  };
+
+  useEffect(() => {
+    const fetchPost = async () => {
+      const { data, error } = await supabase
+        .from("Posts")
+        .select()
+        .eq("id", id)
+        .single();
+
+      if (error) {
+        console.error("Error fetching post:", error.message);
+      } else if (data) {
+        setPost(data);
+      }
+    };
+
+    fetchPost();
+  }, [id]);
 
   return (
     <div>
@@ -56,8 +98,10 @@ const EditPost = ({ data }) => {
           onChange={handleChange}
         ></textarea>
         <br />
-        <input type="submit" value="Submit" />
-        <button className="deleteButton">Delete</button>
+        <input type="submit" value="Submit" onClick={updatePost} />
+        <button className="deleteButton" onClick={deletePost}>
+          Delete
+        </button>
       </form>
     </div>
   );
